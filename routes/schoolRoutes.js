@@ -72,7 +72,7 @@ router.get("/listSchools", (req, res) => {
   db.query(query, (err, results) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: "Database error" });
+      return res.status(500).json({ error: err });
     }
     // console.log(results);
     const schoolsWithDistance = results.map((school) => {
