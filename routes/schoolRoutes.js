@@ -2,12 +2,10 @@ import express from "express";
 import db from "../db.js";
 
 const router = express.Router();
-// Add School API
 router.post("/addSchool", (req, res) => {
-    console.log(req.body);
+  // console.log(req.body);
   const { name, address, latitude, longitude } = req.body;
 
-  // Validate input
   if (
     !name ||
     !address ||
@@ -17,9 +15,9 @@ router.post("/addSchool", (req, res) => {
     return res.status(400).json({ error: "Invalid input data" });
   }
 
-  const query =
+  const schoolTable =
     "INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)";
-  db.query(query, [name, address, latitude, longitude], (err, result) => {
+  db.query(schoolTable, [name, address, latitude, longitude], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
@@ -31,10 +29,10 @@ router.post("/addSchool", (req, res) => {
   });
 });
 
-// Haversine formula to calculate distance
+// distance formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const toRadians = (degrees) => degrees * (Math.PI / 180);
-  const R = 6371; // Radius of Earth in kilometers
+  const R = 6371; // Radius of Earth
 
   const dLat = toRadians(lat2 - lat1);
   const dLon = toRadians(lon2 - lon1);
@@ -48,11 +46,13 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// List Schools API
 router.get("/listSchools", (req, res) => {
+  // console.log("Requesting query",req.query);
   const { latitude, longitude } = req.query;
 
   if (typeof latitude === "undefined" || typeof longitude === "undefined") {
+    console.log("This is latitude", latitude);
+    console.log("This is longitude", longitude);
     return res
       .status(400)
       .json({ error: "Latitude and longitude are required" });
@@ -60,6 +60,9 @@ router.get("/listSchools", (req, res) => {
 
   const userLat = parseFloat(latitude);
   const userLon = parseFloat(longitude);
+
+  console.log("this is userLat", userLat);
+  console.log("this is userLon", userLon);
 
   if (isNaN(userLat) || isNaN(userLon)) {
     return res.status(400).json({ error: "Invalid latitude or longitude" });
@@ -71,7 +74,7 @@ router.get("/listSchools", (req, res) => {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
     }
-
+    // console.log(results);
     const schoolsWithDistance = results.map((school) => {
       const distance = calculateDistance(
         userLat,
@@ -84,8 +87,9 @@ router.get("/listSchools", (req, res) => {
 
     schoolsWithDistance.sort((a, b) => a.distance - b.distance);
 
+    console.log(schoolsWithDistance);
     res.json(schoolsWithDistance);
   });
 });
 
-export default router
+export default router;
