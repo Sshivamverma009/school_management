@@ -1,13 +1,13 @@
 import express from "express"
 import bodyParser  from "body-parser";
-import schoolRoutes from "./routes/schoolRoutes.js"
+import router from "./routes/schoolRoutes.js"
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use('/api', schoolRoutes);
+app.use('/api', router);
 
 // Start Server
 app.listen(PORT, () => {
